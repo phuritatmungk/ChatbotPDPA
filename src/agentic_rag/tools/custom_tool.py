@@ -81,8 +81,11 @@ class DocumentSearchTool(object):
         
  
         self.reranker = None
-        self.use_reranker = RERANKER_AVAILABLE and os.getenv("RAG_USE_RERANKER", "1").lower() in ("1", "true", "yes", "y")
-        if self.use_reranker:
+        self.rerank_url = os.getenv("RAG_RERANK_URL", "").strip().rstrip("/")
+        self.use_reranker = os.getenv("RAG_USE_RERANKER", "1").lower() in ("1", "true", "yes", "y")
+        if self.use_reranker and self.rerank_url:
+            logger.info(f"Using remote reranker at {self.rerank_url}")
+        elif self.use_reranker and RERANKER_AVAILABLE:
             try:
                 self.reranker = CrossEncoder('BAAI/bge-reranker-v2-m3')
                 logger.info("BGE reranker initialized successfully using CrossEncoder")
@@ -91,7 +94,8 @@ class DocumentSearchTool(object):
                 self.use_reranker = False
                 self.reranker = None
         else:
-            logger.info("Reranking disabled (set RAG_USE_RERANKER=1 to enable)")
+            self.use_reranker = False
+            logger.info("Reranking disabled")
         
 
     def _ensure_initialized(self):
@@ -572,22 +576,32 @@ class DocumentSearchTool(object):
         """
         Rerank search results using BGE reranker
         """
-        if not self.use_reranker or not self.reranker or not search_results:
+        if not self.use_reranker or not search_results or (not self.reranker and not self.rerank_url):
             return search_results[:top_k]
-        
+
         try:
-            
+
             pairs = []
             for result in search_results:
                 text = result.get('text', '')
                 if text:
                     pairs.append([query, text])
-            
+
             if not pairs:
                 return search_results[:top_k]
-            
-           
-            scores = self.reranker.predict(pairs)
+
+            if self.rerank_url:
+                import requests
+                resp = requests.post(
+                    f"{self.rerank_url}/rerank",
+                    json={"pairs": pairs},
+                    headers={"ngrok-skip-browser-warning": "true"},
+                    timeout=30,
+                )
+                resp.raise_for_status()
+                scores = resp.json().get("scores", [])
+            else:
+                scores = self.reranker.predict(pairs)
             
         
             import numpy as np

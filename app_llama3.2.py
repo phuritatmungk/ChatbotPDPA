@@ -12,6 +12,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+try:
+    for _k, _v in st.secrets.items():
+        if isinstance(_v, str):
+            os.environ.setdefault(_k, _v)
+except Exception:
+    pass
+
 from src.agentic_rag.tools.custom_tool import DocumentSearchTool
 from src.agentic_rag.crew import build_langgraph_workflow
 try:

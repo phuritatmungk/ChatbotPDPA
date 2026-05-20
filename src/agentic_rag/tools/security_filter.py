@@ -22,13 +22,13 @@ class SecurityFilter:
     
     def __init__(self):
    
-        self.llama_base_url = os.getenv("LLAMA_CPP_BASE_URL", "http://localhost:8080/v1")
-        self.llama_model = os.getenv("LLAMA_CPP_MODEL", os.getenv("OLLAMA_MODEL", "hf.co/scb10x/typhoon2.1-gemma3-4b-gguf:Q4_K_M"))
+        self.llama_base_url = os.getenv("LLM_BASE_URL", os.getenv("LLAMA_CPP_BASE_URL", "https://api.opentyphoon.ai/v1"))
+        self.llama_model = os.getenv("LLM_MODEL", os.getenv("LLAMA_CPP_MODEL", "typhoon-v2.1-12b-instruct"))
+        api_key = os.getenv("LLM_API_KEY") or os.getenv("TYPHOON_API_KEY") or os.getenv("OPENAI_API_KEY") or "not-needed"
         self._openai_client = None
         if OpenAI is not None:
             try:
-   
-                self._openai_client = OpenAI(base_url=self.llama_base_url, api_key=os.getenv("OPENAI_API_KEY", "not-needed"))
+                self._openai_client = OpenAI(base_url=self.llama_base_url, api_key=api_key)
             except Exception:
                 self._openai_client = None
 

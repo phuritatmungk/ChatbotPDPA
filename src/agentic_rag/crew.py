@@ -13,8 +13,9 @@ except ImportError:
     OpenAI = None
     logging.warning("OpenAI client not installed. Please install with 'pip install openai'.")
 
-OLLAMA_MODEL = "hf.co/scb10x/typhoon2.5-qwen3-4b-gguf:Q4_K_M"
-LLAMA_CPP_BASE_URL = "http://localhost:8080/v1"
+LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.opentyphoon.ai/v1")
+LLM_MODEL = os.getenv("LLM_MODEL", "typhoon-v2.1-12b-instruct")
+LLM_API_KEY = os.getenv("LLM_API_KEY") or os.getenv("TYPHOON_API_KEY") or os.getenv("OPENAI_API_KEY") or "not-needed"
 
 AGENTS_YAML = os.path.join(os.path.dirname(__file__), 'config', 'agents.yaml')
 TASKS_YAML = os.path.join(os.path.dirname(__file__), 'config', 'tasks.yaml')
@@ -26,9 +27,9 @@ def call_llm(prompt, system=None):
     if system:
         messages.append({"role": "system", "content": system})
     messages.append({"role": "user", "content": prompt})
-    client = OpenAI(base_url=LLAMA_CPP_BASE_URL, api_key="not-needed")
+    client = OpenAI(base_url=LLM_BASE_URL, api_key=LLM_API_KEY)
     response = client.chat.completions.create(
-        model=OLLAMA_MODEL,
+        model=LLM_MODEL,
         messages=messages,
         max_tokens=8192
     )

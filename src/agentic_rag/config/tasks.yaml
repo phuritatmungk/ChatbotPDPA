@@ -1,0 +1,42 @@
+retrieval_task:
+  description: >
+    Retrieve the most relevant information from the available sources for the user query: {query}
+  expected_output: >
+    The most relevant information in form of text as retrieved from the sources.
+  agent: retriever_agent
+
+generate_answers_task:
+  description: >
+    Using the retrieved information, generate 3 distinct and comprehensive candidate answers to the user's refined question: {query}.
+    For legal questions, ensure each answer includes detailed analysis with legal provisions, reasoning, consequences, and practical recommendations.
+  expected_output: >
+    A list of 3 comprehensive candidate answers, each providing detailed analysis including legal status, applicable provisions, reasoning, consequences, and practical advice.
+  agent: answer_candidate_agent
+
+decision_ranking_task:
+  description: >
+    Take the list of candidate answers and rank them based on relevance, accuracy, and completeness for the question: {query}.
+  expected_output: >
+    A ranked list of the candidate answers, with the best answer at the top, including a brief justification for each rank.
+  agent: decision_ranking_agent
+
+response_task:
+  description: >
+    Select the top-ranked answer from the list and format it as the final response to the user.
+  expected_output: >
+    The single, highest-quality answer, presented clearly to the user.
+  agent: response_synthesizer_agent
+
+refine_question_task:
+  description: >
+    Refine or clarify the user's initial question to make it clear, specific, and actionable.
+  expected_output: >
+    A refined, unambiguous, and actionable version of the original question.
+  agent: question_refiner_agent
+
+planning_task:
+  description: >
+    Generate a step-by-step plan to answer the refined question.
+  expected_output: >
+    A logical, actionable plan or list of steps to answer the refined question.
+  agent: planning_agent

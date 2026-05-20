@@ -1,0 +1,1 @@
+C:\llama\llama-server.exe -hf scb10x/typhoon2.1-gemma3-4b-gguf:Q4_K_M -c 128000 --n-gpu-layers -1 -n 4096

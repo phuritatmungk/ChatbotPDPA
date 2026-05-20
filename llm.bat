@@ -1,0 +1,1 @@
+C:\llama\llama-server.exe -hf scb10x/typhoon2.5-qwen3-4b-gguf:Q4_K_M -c 8192

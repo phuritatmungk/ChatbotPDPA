@@ -14,7 +14,7 @@ except ImportError:
     logging.warning("OpenAI client not installed. Please install with 'pip install openai'.")
 
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.opentyphoon.ai/v1")
-LLM_MODEL = os.getenv("LLM_MODEL", "typhoon-v2.1-12b-instruct")
+LLM_MODEL = os.getenv("LLM_MODEL", "typhoon-v2.5-30b-a3b-instruct")
 LLM_API_KEY = os.getenv("LLM_API_KEY") or os.getenv("TYPHOON_API_KEY") or os.getenv("OPENAI_API_KEY") or "not-needed"
 
 AGENTS_YAML = os.path.join(os.path.dirname(__file__), 'config', 'agents.yaml')

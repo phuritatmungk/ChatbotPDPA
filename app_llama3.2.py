@@ -634,19 +634,29 @@ with st.sidebar:
         current_sid = st.session_state.get("session_id")
         for s in sessions:
             sid = s["session_id"]
-            label = f"{s['title']}\n{_format_relative_ts(s['last_ts'])} · {s['message_count']} ข้อความ"
             is_active = sid == current_sid
-            btn_key = f"session_{sid}"
-            if is_active:
-                st.markdown(
-                    f'<div class="session-item active">{s["title"]}'
-                    f'<div class="session-meta">{_format_relative_ts(s["last_ts"])} · {s["message_count"]} ข้อความ · กำลังใช้งาน</div>'
-                    f'</div>',
-                    unsafe_allow_html=True,
-                )
-            else:
-                if st.button(label, key=btn_key, use_container_width=True):
-                    _load_session(sid)
+            col_load, col_del = st.columns([5, 1], gap="small")
+            with col_load:
+                if is_active:
+                    st.markdown(
+                        f'<div class="session-item active">{s["title"]}'
+                        f'<div class="session-meta">{_format_relative_ts(s["last_ts"])} · {s["message_count"]} ข้อความ · กำลังใช้งาน</div>'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    label = f"{s['title']}\n{_format_relative_ts(s['last_ts'])} · {s['message_count']} ข้อความ"
+                    if st.button(label, key=f"session_{sid}", use_container_width=True):
+                        _load_session(sid)
+                        st.rerun()
+            with col_del:
+                if st.button("🗑", key=f"del_{sid}", help="ลบการสนทนานี้", use_container_width=True):
+                    try:
+                        st.session_state.chat_store.reset_session(sid)
+                    except Exception as e:
+                        st.warning(f"ลบไม่สำเร็จ: {e}")
+                    if is_active:
+                        _new_chat()
                     st.rerun()
 
 if not st.session_state.messages:

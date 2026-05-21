@@ -154,17 +154,19 @@ section[data-testid="stSidebar"] .new-chat-btn .stButton > button {{
     font-weight: 600;
     margin-bottom: 8px;
 }}
-section[data-testid="stSidebar"] .del-btn .stButton > button {{
-    background: rgba(248,113,113,0.12);
-    color: var(--danger);
-    border: 1px solid rgba(248,113,113,0.32);
-    text-align: center;
-    padding: 10px 0;
+section[data-testid="stSidebar"] [class*="st-key-del_"] .stButton > button,
+section[data-testid="stSidebar"] [class*="st-key-del_"] button {{
+    background: rgba(248,113,113,0.14) !important;
+    color: var(--danger) !important;
+    border: 1px solid rgba(248,113,113,0.34) !important;
+    text-align: center !important;
+    padding: 10px 0 !important;
 }}
-section[data-testid="stSidebar"] .del-btn .stButton > button:hover {{
-    background: rgba(248,113,113,0.22);
-    color: #fff;
-    border-color: var(--danger);
+section[data-testid="stSidebar"] [class*="st-key-del_"] .stButton > button:hover,
+section[data-testid="stSidebar"] [class*="st-key-del_"] button:hover {{
+    background: rgba(248,113,113,0.26) !important;
+    color: #fff !important;
+    border-color: var(--danger) !important;
 }}
 
 /* Compact top bar */
@@ -764,7 +766,6 @@ with st.sidebar:
                         _load_session(sid)
                         st.rerun()
             with col_del:
-                st.markdown('<div class="del-btn">', unsafe_allow_html=True)
                 if st.button("🗑", key=f"del_{sid}", help="ลบการสนทนานี้", use_container_width=True):
                     try:
                         st.session_state.chat_store.reset_session(sid)
@@ -773,7 +774,6 @@ with st.sidebar:
                     if is_active:
                         _new_chat()
                     st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
 
 if not st.session_state.messages:
     st.markdown("""

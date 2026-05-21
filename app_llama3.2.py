@@ -124,6 +124,23 @@ section[data-testid="stSidebar"] [data-testid="stSidebarHeader"] {{ display: non
     font-size: 0.68rem; color: var(--text-3);
     margin-top: 2px; font-weight: 400;
 }}
+.tag-row {{
+    display: flex; gap: 4px; flex-wrap: wrap;
+    margin: 4px 0 2px;
+}}
+.tag {{
+    display: inline-flex; align-items: center;
+    padding: 2px 8px;
+    background: rgba(139,147,255,0.10);
+    border: 1px solid rgba(139,147,255,0.20);
+    color: var(--text-3);
+    font-size: 0.66rem;
+    border-radius: 999px;
+    font-weight: 500;
+    line-height: 1.4;
+}}
+.tag-count {{ background: rgba(91,99,255,0.14); color: var(--brand); border-color: rgba(91,99,255,0.30); }}
+.tag-active {{ background: rgba(74,222,128,0.14); color: var(--success); border-color: rgba(74,222,128,0.30); }}
 section[data-testid="stSidebar"] .stButton > button {{
     width: 100%;
     background: transparent;
@@ -751,20 +768,31 @@ with st.sidebar:
         for s in sessions:
             sid = s["session_id"]
             is_active = sid == current_sid
+            ts_tag = _format_relative_ts(s["last_ts"])
+            count_tag = f"{s['message_count']} ข้อความ"
             col_load, col_del = st.columns([5, 1], gap="small")
             with col_load:
                 if is_active:
                     st.markdown(
                         f'<div class="session-item active">{s["title"]}'
-                        f'<div class="session-meta">{_format_relative_ts(s["last_ts"])} · {s["message_count"]} ข้อความ · กำลังใช้งาน</div>'
-                        f'</div>',
+                        f'<div class="tag-row">'
+                        f'<span class="tag">{ts_tag}</span>'
+                        f'<span class="tag tag-count">{count_tag}</span>'
+                        f'<span class="tag tag-active">กำลังใช้งาน</span>'
+                        f'</div></div>',
                         unsafe_allow_html=True,
                     )
                 else:
-                    label = f"{s['title']}\n{_format_relative_ts(s['last_ts'])} · {s['message_count']} ข้อความ"
-                    if st.button(label, key=f"session_{sid}", use_container_width=True):
+                    if st.button(s["title"], key=f"session_{sid}", use_container_width=True):
                         _load_session(sid)
                         st.rerun()
+                    st.markdown(
+                        f'<div class="tag-row">'
+                        f'<span class="tag">{ts_tag}</span>'
+                        f'<span class="tag tag-count">{count_tag}</span>'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
             with col_del:
                 if st.button("🗑", key=f"del_{sid}", help="ลบการสนทนานี้", use_container_width=True):
                     try:
@@ -887,10 +915,13 @@ if prompt:
         conversation_context = build_conversation_context(st.session_state.messages)
 
     with st.chat_message("assistant"):
+        stop_slot = st.empty()
+        with stop_slot.container():
+            st.button("⏹ หยุดสร้างคำตอบ", key="stop_gen", use_container_width=False)
         message_placeholder = st.empty()
         full_response = ""
         start_time = time.time()
-        
+
         with st.spinner("กำลังประมวลผล..."):
             print("\n" + "="*50)
             print(f"User Query: {prompt}")
@@ -916,6 +947,7 @@ if prompt:
                 if ("response" in chunk and chunk["response"]) or ("candidates" in chunk and chunk["candidates"]):
                     last_with_answer = chunk
             progress_placeholder.empty()
+            stop_slot.empty()
             if last_with_answer is not None:
                 result = last_with_answer
             print("\n" + "="*50)

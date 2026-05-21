@@ -141,6 +141,53 @@ section[data-testid="stSidebar"] [data-testid="stSidebarHeader"] {{ display: non
 }}
 .tag-count {{ background: rgba(91,99,255,0.14); color: var(--brand); border-color: rgba(91,99,255,0.30); }}
 .tag-active {{ background: rgba(74,222,128,0.14); color: var(--success); border-color: rgba(74,222,128,0.30); }}
+
+.session-row {{
+    display: flex; gap: 6px;
+    margin: 4px 0;
+}}
+.session-card {{
+    flex: 1; min-width: 0;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    text-decoration: none !important;
+    color: var(--text-2) !important;
+    display: block;
+    transition: all 140ms ease;
+}}
+.session-card:hover {{
+    background: var(--surface-strong);
+    color: var(--text-1) !important;
+    border-color: var(--border-strong);
+}}
+.session-card.active {{
+    background: rgba(139,147,255,0.14);
+    border-color: rgba(139,147,255,0.35);
+    color: var(--text-1) !important;
+}}
+.session-card .title {{
+    font-size: 0.86rem; font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    margin-bottom: 6px;
+}}
+.del-card {{
+    flex: 0 0 40px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(248,113,113,0.14);
+    border: 1px solid rgba(248,113,113,0.34);
+    color: var(--danger) !important;
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    text-decoration: none !important;
+    transition: all 140ms ease;
+}}
+.del-card:hover {{
+    background: rgba(248,113,113,0.26);
+    color: #fff !important;
+    border-color: var(--danger);
+}}
 section[data-testid="stSidebar"] .stButton > button {{
     width: 100%;
     background: transparent;
@@ -741,6 +788,24 @@ def _new_chat():
     st.session_state.messages = []
 
 
+_qp = st.query_params
+_action = _qp.get("action")
+_qp_sid = _qp.get("sid")
+if _action and _qp_sid:
+    if _action == "load":
+        _load_session(_qp_sid)
+    elif _action == "delete":
+        try:
+            if st.session_state.get("chat_store"):
+                st.session_state.chat_store.reset_session(_qp_sid)
+        except Exception:
+            pass
+        if _qp_sid == st.session_state.get("session_id"):
+            _new_chat()
+    st.query_params.clear()
+    st.rerun()
+
+
 with st.sidebar:
     st.markdown('<div class="new-chat-btn">', unsafe_allow_html=True)
     if st.button("✨  สนทนาใหม่", key="sidebar_new_chat", use_container_width=True):
@@ -765,43 +830,28 @@ with st.sidebar:
         )
     else:
         current_sid = st.session_state.get("session_id")
+        rows_html = []
         for s in sessions:
             sid = s["session_id"]
             is_active = sid == current_sid
             ts_tag = _format_relative_ts(s["last_ts"])
             count_tag = f"{s['message_count']} ข้อความ"
-            col_load, col_del = st.columns([5, 1], gap="small")
-            with col_load:
-                if is_active:
-                    st.markdown(
-                        f'<div class="session-item active">{s["title"]}'
-                        f'<div class="tag-row">'
-                        f'<span class="tag">{ts_tag}</span>'
-                        f'<span class="tag tag-count">{count_tag}</span>'
-                        f'<span class="tag tag-active">กำลังใช้งาน</span>'
-                        f'</div></div>',
-                        unsafe_allow_html=True,
-                    )
-                else:
-                    if st.button(s["title"], key=f"session_{sid}", use_container_width=True):
-                        _load_session(sid)
-                        st.rerun()
-                    st.markdown(
-                        f'<div class="tag-row">'
-                        f'<span class="tag">{ts_tag}</span>'
-                        f'<span class="tag tag-count">{count_tag}</span>'
-                        f'</div>',
-                        unsafe_allow_html=True,
-                    )
-            with col_del:
-                if st.button("🗑", key=f"del_{sid}", help="ลบการสนทนานี้", use_container_width=True):
-                    try:
-                        st.session_state.chat_store.reset_session(sid)
-                    except Exception as e:
-                        st.warning(f"ลบไม่สำเร็จ: {e}")
-                    if is_active:
-                        _new_chat()
-                    st.rerun()
+            active_class = " active" if is_active else ""
+            active_pill = '<span class="tag tag-active">กำลังใช้งาน</span>' if is_active else ""
+            rows_html.append(
+                f'<div class="session-row">'
+                f'  <a class="session-card{active_class}" href="?action=load&sid={sid}" target="_self">'
+                f'    <div class="title">{s["title"]}</div>'
+                f'    <div class="tag-row">'
+                f'      <span class="tag">{ts_tag}</span>'
+                f'      <span class="tag tag-count">{count_tag}</span>'
+                f'      {active_pill}'
+                f'    </div>'
+                f'  </a>'
+                f'  <a class="del-card" href="?action=delete&sid={sid}" target="_self" title="ลบการสนทนานี้">🗑</a>'
+                f'</div>'
+            )
+        st.markdown("\n".join(rows_html), unsafe_allow_html=True)
 
 if not st.session_state.messages:
     st.markdown("""

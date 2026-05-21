@@ -187,4 +187,50 @@ class ChatHistoryStore:
         """Dangerous: deletes the entire chat history collection."""
         self.client.delete_collection(self.collection_name)
 
+    def list_sessions(self, limit: int = 100) -> List[Dict[str, Any]]:
+        """รายการเซสชันทั้งหมด เรียงจากใหม่ -> เก่า
+
+        Returns list of dicts: {session_id, title, last_ts, message_count}
+        title = first user message (truncated) or fallback string.
+        """
+        sessions: Dict[str, Dict[str, Any]] = {}
+        next_page = None
+        while True:
+            result = self.client.scroll(
+                collection_name=self.collection_name,
+                with_payload=True,
+                with_vectors=False,
+                limit=256,
+                offset=next_page,
+            )
+            points, next_page = result
+            for p in points:
+                payload = p.payload or {}
+                sid = payload.get("session_id")
+                if not sid:
+                    continue
+                ts = float(payload.get("ts") or 0.0)
+                role = payload.get("role")
+                content = (payload.get("content") or "").strip()
+                entry = sessions.get(sid)
+                if entry is None:
+                    entry = {"session_id": sid, "title": "", "first_user_ts": None, "last_ts": ts, "message_count": 0}
+                    sessions[sid] = entry
+                entry["message_count"] += 1
+                if ts > entry["last_ts"]:
+                    entry["last_ts"] = ts
+                if role == "user" and content and (entry["first_user_ts"] is None or ts < entry["first_user_ts"]):
+                    entry["first_user_ts"] = ts
+                    entry["title"] = content[:60]
+            if not next_page:
+                break
+
+        result_list = list(sessions.values())
+        for s in result_list:
+            if not s["title"]:
+                s["title"] = "การสนทนาใหม่"
+            s.pop("first_user_ts", None)
+        result_list.sort(key=lambda x: x["last_ts"], reverse=True)
+        return result_list[:limit]
+
 

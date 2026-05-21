@@ -83,7 +83,73 @@ html, body, [class^='css'] {{
     pointer-events: none; z-index: 0;
 }}
 
-section[data-testid="stSidebar"] {{ display: none !important; }}
+section[data-testid="stSidebar"] {{
+    background: linear-gradient(180deg, rgba(13,17,36,0.92) 0%, rgba(21,26,53,0.88) 100%) !important;
+    border-right: 1px solid var(--border) !important;
+}}
+section[data-testid="stSidebar"] > div {{ padding-top: 12px !important; }}
+section[data-testid="stSidebar"] [data-testid="stSidebarHeader"] {{ display: none; }}
+.sidebar-title {{
+    font-size: 0.72rem; color: var(--text-3); letter-spacing: 1px;
+    text-transform: uppercase; font-weight: 600;
+    padding: 6px 4px 8px;
+}}
+.session-item {{
+    display: block;
+    padding: 10px 12px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    margin: 2px 0;
+    font-size: 0.86rem; line-height: 1.35;
+    cursor: pointer;
+    transition: all 140ms ease;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}}
+.session-item:hover {{
+    background: var(--surface);
+    color: var(--text-1);
+}}
+.session-item.active {{
+    background: rgba(139,147,255,0.14);
+    border-color: rgba(139,147,255,0.35);
+    color: var(--text-1);
+}}
+.session-meta {{
+    font-size: 0.68rem; color: var(--text-3);
+    margin-top: 2px; font-weight: 400;
+}}
+section[data-testid="stSidebar"] .stButton > button {{
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--border);
+    box-shadow: none;
+    padding: 10px 12px;
+    font-weight: 500;
+    font-size: 0.86rem;
+    text-align: left;
+    color: var(--text-2);
+    line-height: 1.35;
+    white-space: normal;
+    height: auto;
+}}
+section[data-testid="stSidebar"] .stButton > button:hover {{
+    background: var(--surface);
+    color: var(--text-1);
+    border-color: var(--border-strong);
+    transform: none;
+    box-shadow: none;
+}}
+section[data-testid="stSidebar"] .new-chat-btn .stButton > button {{
+    background: linear-gradient(135deg, #5b63ff 0%, #8b93ff 100%);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 4px 18px rgba(91,99,255,0.25);
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 8px;
+}}
 
 /* Compact top bar */
 .topbar {{
@@ -509,6 +575,79 @@ if st.session_state.langgraph_workflow is None or st.session_state.using_uploade
 
 if "preset_prompt" not in st.session_state:
     st.session_state.preset_prompt = None
+
+
+def _format_relative_ts(ts: float) -> str:
+    if not ts:
+        return ""
+    now = time.time()
+    delta = max(0, now - ts)
+    if delta < 60:
+        return "เมื่อสักครู่"
+    if delta < 3600:
+        return f"{int(delta // 60)} นาทีก่อน"
+    if delta < 86400:
+        return f"{int(delta // 3600)} ชั่วโมงก่อน"
+    if delta < 86400 * 7:
+        return f"{int(delta // 86400)} วันก่อน"
+    return time.strftime("%d %b", time.localtime(ts))
+
+
+def _load_session(sid: str):
+    st.session_state.session_id = sid
+    try:
+        if st.session_state.get("chat_store"):
+            st.session_state.messages = st.session_state.chat_store.list_messages(sid)
+        else:
+            st.session_state.messages = []
+    except Exception:
+        st.session_state.messages = []
+
+
+def _new_chat():
+    st.session_state.session_id = str(uuid.uuid4())
+    st.session_state.messages = []
+
+
+with st.sidebar:
+    st.markdown('<div class="new-chat-btn">', unsafe_allow_html=True)
+    if st.button("✨  สนทนาใหม่", key="sidebar_new_chat", use_container_width=True):
+        _new_chat()
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="sidebar-title">ประวัติการสนทนา</div>', unsafe_allow_html=True)
+
+    sessions = []
+    if st.session_state.get("chat_store"):
+        try:
+            sessions = st.session_state.chat_store.list_sessions(limit=50)
+        except Exception as e:
+            st.caption(f"โหลดประวัติไม่สำเร็จ: {e}")
+
+    if not sessions:
+        st.markdown(
+            '<div style="color: var(--text-3); font-size: 0.82rem; padding: 6px 4px;">ยังไม่มีประวัติ — เริ่มสนทนาเพื่อบันทึก</div>',
+            unsafe_allow_html=True,
+        )
+    else:
+        current_sid = st.session_state.get("session_id")
+        for s in sessions:
+            sid = s["session_id"]
+            label = f"{s['title']}\n{_format_relative_ts(s['last_ts'])} · {s['message_count']} ข้อความ"
+            is_active = sid == current_sid
+            btn_key = f"session_{sid}"
+            if is_active:
+                st.markdown(
+                    f'<div class="session-item active">{s["title"]}'
+                    f'<div class="session-meta">{_format_relative_ts(s["last_ts"])} · {s["message_count"]} ข้อความ · กำลังใช้งาน</div>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+            else:
+                if st.button(label, key=btn_key, use_container_width=True):
+                    _load_session(sid)
+                    st.rerun()
 
 if not st.session_state.messages:
     st.markdown("""

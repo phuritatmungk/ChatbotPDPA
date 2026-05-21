@@ -417,6 +417,9 @@ class SecurityFilter:
             "response_message": ""
         }
 
+        if os.getenv("DISABLE_GUARDRAIL", "0").lower() in ("1", "true", "yes", "y"):
+            return result
+
       
         injection_hits = self.detect_prompt_injection(user_input)
         if injection_hits:

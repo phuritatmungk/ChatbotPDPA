@@ -29,6 +29,10 @@ except Exception:
 import base64
 logo_base64 = base64.b64encode(open("assets/Typhoon2.png", "rb").read()).decode()
 
+if "theme" not in st.session_state:
+    st.session_state.theme = "dark"
+is_light = st.session_state.theme == "light"
+
 st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap');
@@ -388,6 +392,71 @@ section[data-testid="stSidebar"] .del-btn .stButton > button:hover {{
 </div>
 """, unsafe_allow_html=True)
 
+if is_light:
+    st.markdown("""
+    <style>
+    :root {
+        --bg-0: #f4f6fb;
+        --bg-1: #ffffff;
+        --bg-2: #eef1f8;
+        --surface: rgba(15,18,40,0.04);
+        --surface-strong: rgba(15,18,40,0.07);
+        --border: rgba(15,18,40,0.10);
+        --border-strong: rgba(15,18,40,0.18);
+        --text-1: #15172a;
+        --text-2: #4a4e6b;
+        --text-3: #7a82a3;
+        --brand: #5b63ff;
+        --brand-2: #8b93ff;
+        --brand-glow: rgba(91,99,255,0.30);
+    }
+    .stApp {
+        background:
+            radial-gradient(1200px 600px at 12% -10%, rgba(91,99,255,0.10), transparent 60%),
+            radial-gradient(1000px 500px at 90% 0%, rgba(196,168,255,0.10), transparent 55%),
+            linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 60%, var(--bg-2) 100%) !important;
+        color: var(--text-1) !important;
+    }
+    .stApp::before {
+        background: radial-gradient(60% 60% at 50% 0%, rgba(91,99,255,0.12), transparent 70%) !important;
+    }
+    .topbar {
+        background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.6) 70%, transparent) !important;
+    }
+    .topbar-title { color: var(--text-1) !important; }
+    .stChatInputContainer {
+        background: linear-gradient(180deg, transparent, rgba(244,246,251,0.92) 30%) !important;
+    }
+    .stChatInputContainer textarea {
+        background: #fff !important;
+        color: var(--text-1) !important;
+    }
+    .stChatMessage { color: var(--text-1) !important; }
+    .stChatMessage[data-testid="user"] {
+        background: linear-gradient(135deg, rgba(91,99,255,0.10), rgba(139,147,255,0.06)) !important;
+        border-color: rgba(91,99,255,0.30) !important;
+    }
+    .stChatMessage[data-testid="assistant"] {
+        background: #fff !important;
+        border-color: var(--border) !important;
+    }
+    .empty-hero h1 {
+        background: linear-gradient(135deg, #15172a, #5b63ff) !important;
+        -webkit-background-clip: text !important;
+        background-clip: text !important;
+    }
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(238,241,248,0.95) 100%) !important;
+        border-right: 1px solid var(--border) !important;
+    }
+    .streamlit-expanderHeader, [data-testid="stExpander"] details > summary { color: var(--text-1) !important; }
+    .streamlit-expanderContent, [data-testid="stExpander"] details > div {
+        background: rgba(255,255,255,0.7) !important;
+    }
+    ::-webkit-scrollbar-thumb { background: rgba(91,99,255,0.35) !important; background-clip: padding-box; }
+    </style>
+    """, unsafe_allow_html=True)
+
 
 def is_pdpa_related(document_tool):
     """
@@ -626,6 +695,11 @@ with st.sidebar:
         _new_chat()
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
+
+    theme_label = "🌙  โหมดมืด" if is_light else "☀️  โหมดสว่าง"
+    if st.button(theme_label, key="theme_toggle", use_container_width=True):
+        st.session_state.theme = "dark" if is_light else "light"
+        st.rerun()
 
     st.markdown('<div class="sidebar-title">ประวัติการสนทนา</div>', unsafe_allow_html=True)
 

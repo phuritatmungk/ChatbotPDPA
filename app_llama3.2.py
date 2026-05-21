@@ -165,11 +165,11 @@ section[data-testid="stSidebar"] .del-btn .stButton > button:hover {{
 
 /* Compact top bar */
 .topbar {{
-    position: sticky; top: 0; z-index: 50;
+    position: sticky; top: 3rem; z-index: 50;
     display: flex; align-items: center; gap: 14px;
     padding: 14px 8px;
     margin-bottom: 18px;
-    background: linear-gradient(180deg, rgba(13,17,36,0.85), rgba(13,17,36,0.55) 70%, transparent);
+    background: linear-gradient(180deg, rgba(13,17,36,0.92), rgba(13,17,36,0.6) 70%, transparent);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
 }}
@@ -269,7 +269,6 @@ section[data-testid="stSidebar"] .del-btn .stButton > button:hover {{
 .block-container {{
     padding-left: 1.5rem !important;
     padding-right: 1.5rem !important;
-    padding-top: 0.5rem !important;
     padding-bottom: 120px !important;
     max-width: 980px !important;
 }}

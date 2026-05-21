@@ -150,6 +150,18 @@ section[data-testid="stSidebar"] .new-chat-btn .stButton > button {{
     font-weight: 600;
     margin-bottom: 8px;
 }}
+section[data-testid="stSidebar"] .del-btn .stButton > button {{
+    background: rgba(248,113,113,0.12);
+    color: var(--danger);
+    border: 1px solid rgba(248,113,113,0.32);
+    text-align: center;
+    padding: 10px 0;
+}}
+section[data-testid="stSidebar"] .del-btn .stButton > button:hover {{
+    background: rgba(248,113,113,0.22);
+    color: #fff;
+    border-color: var(--danger);
+}}
 
 /* Compact top bar */
 .topbar {{
@@ -650,6 +662,7 @@ with st.sidebar:
                         _load_session(sid)
                         st.rerun()
             with col_del:
+                st.markdown('<div class="del-btn">', unsafe_allow_html=True)
                 if st.button("🗑", key=f"del_{sid}", help="ลบการสนทนานี้", use_container_width=True):
                     try:
                         st.session_state.chat_store.reset_session(sid)
@@ -658,6 +671,7 @@ with st.sidebar:
                     if is_active:
                         _new_chat()
                     st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
 
 if not st.session_state.messages:
     st.markdown("""

@@ -31,206 +31,283 @@ logo_base64 = base64.b64encode(open("assets/Typhoon2.png", "rb").read()).decode(
 
 st.markdown(f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap');
+
+:root {{
+    --bg-0: #0d1124;
+    --bg-1: #151a35;
+    --bg-2: #1d2347;
+    --surface: rgba(255,255,255,0.04);
+    --surface-strong: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.09);
+    --border-strong: rgba(255,255,255,0.16);
+    --text-1: #f1f4ff;
+    --text-2: #b8bedb;
+    --text-3: #7f86a8;
+    --brand: #8b93ff;
+    --brand-2: #c4a8ff;
+    --brand-glow: rgba(139,147,255,0.35);
+    --success: #4ade80;
+    --warn: #fbbf24;
+    --danger: #f87171;
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+}}
 
 html, body, [class^='css'] {{
-    font-family: 'Inter', 'Prompt', sans-serif !important;
+    font-family: 'Inter', 'Sarabun', sans-serif !important;
+    -webkit-font-smoothing: antialiased;
 }}
 
 .stApp {{
-    background: linear-gradient(120deg, #181c2f 0%, #232946 100%);
-    color: #f3f6fa;
+    background:
+        radial-gradient(1200px 600px at 12% -10%, rgba(139,147,255,0.18), transparent 60%),
+        radial-gradient(1000px 500px at 90% 0%, rgba(196,168,255,0.14), transparent 55%),
+        linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 60%, var(--bg-2) 100%);
+    color: var(--text-1);
     min-height: 100vh;
 }}
 
-/* 🔹 Sidebar Styling - Hidden */
-section[data-testid="stSidebar"] {{
-    display: none !important;
+@keyframes auroraDrift {{
+    0%, 100% {{ transform: translate3d(0,0,0); }}
+    50% {{ transform: translate3d(2%, -1%, 0); }}
+}}
+.stApp::before {{
+    content: "";
+    position: fixed; inset: -20% -10% auto -10%;
+    height: 60vh;
+    background: radial-gradient(60% 60% at 50% 0%, rgba(139,147,255,0.18), transparent 70%);
+    filter: blur(40px);
+    animation: auroraDrift 14s ease-in-out infinite;
+    pointer-events: none; z-index: 0;
 }}
 
-/* 🔹 File Uploader */
-.stFileUploader {{
-    background: #1d1f33;
-    border: 1.5px dashed #8f94fb;
-    border-radius: 16px;
-    padding: 24px;
-    text-align: center;
-    color: #ccc;
-    font-weight: 500;
+section[data-testid="stSidebar"] {{ display: none !important; }}
+
+/* Compact top bar */
+.topbar {{
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 8px;
+    margin-bottom: 18px;
+    background: linear-gradient(180deg, rgba(13,17,36,0.85), rgba(13,17,36,0.55) 70%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+}}
+.topbar-logo {{
+    width: 36px; height: 36px;
+    filter: drop-shadow(0 0 12px var(--brand-glow));
+}}
+.topbar-title {{
+    font-weight: 700; font-size: 1.05rem;
+    letter-spacing: 0.2px; color: var(--text-1);
+}}
+.topbar-sub {{
+    font-size: 0.78rem; color: var(--text-3);
+}}
+.topbar-spacer {{ flex: 1; }}
+.status-pill {{
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    font-size: 0.76rem; color: var(--text-2);
+}}
+.status-dot {{
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 8px var(--success);
 }}
 
-.stFileUploader button {{
-    background: linear-gradient(90deg, #4e54c8, #8f94fb);
-    color: white;
-    font-weight: bold;
-    padding: 10px 22px;
-    border-radius: 12px;
-    border: none;
-    margin-top: 12px;
-}}
-
-.stFileUploader button:hover {{
-    background: linear-gradient(90deg, #8f94fb, #4e54c8);
-    transform: scale(1.03);
-    transition: all 0.2s ease-in-out;
-}}
-
-/* 🔹 Reset Chat Button */
+/* Buttons */
 .stButton > button {{
-    background: linear-gradient(90deg, #4e54c8, #8f94fb);
-    color: white;
-    font-weight: bold;
-    padding: 10px 20px;
-    border-radius: 14px;
-    border: none;
-    margin-top: 20px;
+    background: linear-gradient(135deg, #5b63ff 0%, #8b93ff 100%);
+    color: white; font-weight: 600;
+    padding: 9px 18px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 4px 18px rgba(91,99,255,0.25);
+    transition: transform 120ms ease, box-shadow 180ms ease;
 }}
-
 .stButton > button:hover {{
-    background: linear-gradient(90deg, #8f94fb, #4e54c8);
-    transform: scale(1.03);
-    box-shadow: 0 4px 14px rgba(78, 84, 200, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(91,99,255,0.4);
 }}
+.stButton > button:active {{ transform: translateY(0); }}
 
-/* 🔹 Chat Messages */
+/* Chat messages */
 .stChatMessage {{
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--surface);
     backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 20px 24px;
-    margin: 12px 0;
-    border: 1px solid rgba(255,255,255,0.08);
-    color: #f3f6fa;
+    border-radius: var(--radius-lg);
+    padding: 18px 22px;
+    margin: 10px 0;
+    border: 1px solid var(--border);
+    color: var(--text-1);
+    line-height: 1.65;
 }}
-
 .stChatMessage[data-testid="user"] {{
-    background: linear-gradient(90deg, #4e54c8, #8f94fb);
-    color: white;
-    font-weight: 600;
-    box-shadow: 0 6px 18px rgba(78, 84, 200, 0.2);
+    background: linear-gradient(135deg, rgba(91,99,255,0.18), rgba(139,147,255,0.10));
+    border-color: rgba(139,147,255,0.35);
 }}
-
 .stChatMessage[data-testid="assistant"] {{
-    background: rgba(36, 40, 59, 0.85);
-    border: 1px solid rgba(255,255,255,0.06);
-    color: #f3f6fa;
+    background: var(--surface-strong);
 }}
 
-/* 🔹 Input Bar Floating Bottom */
+/* Chat input */
 .stChatInputContainer {{
     position: fixed;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0;
-    background: rgba(36, 40, 59, 0.92);
-    padding: 16px 20px !important;
-    box-shadow: 0 -2px 16px rgba(31, 38, 135, 0.18);
+    left: 0 !important; right: 0 !important; bottom: 0;
+    background: linear-gradient(180deg, transparent, rgba(13,17,36,0.92) 30%);
+    padding: 16px 20px 22px !important;
     z-index: 100;
-    display: flex;
-    justify-content: center;
+    display: flex; justify-content: center;
     width: 100% !important;
 }}
-
 .stChatInputContainer > div {{
     width: 100% !important;
-    max-width: 1200px !important;
+    max-width: 920px !important;
     margin: 0 auto !important;
 }}
-
-.stTextInput {{
-    width: 100% !important;
-    max-width: 100% !important;
+.stChatInputContainer textarea {{
+    background: var(--surface-strong) !important;
+    border: 1px solid var(--border-strong) !important;
+    border-radius: var(--radius-md) !important;
+    color: var(--text-1) !important;
 }}
 
-/* 🔹 Scrollbar */
-::-webkit-scrollbar {{
-    width: 10px;
-    background: #232526;
-}}
-
+/* Scrollbar */
+::-webkit-scrollbar {{ width: 10px; background: transparent; }}
 ::-webkit-scrollbar-thumb {{
-    background: #4e54c8;
+    background: rgba(139,147,255,0.4);
     border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
 }}
+::-webkit-scrollbar-thumb:hover {{ background: rgba(139,147,255,0.7); background-clip: padding-box; }}
 
-/* 🔹 Main Logo and Title */
-.main-header {{
-    text-align: center;
-    margin: 50px 0 30px 0;
-    position: relative;
-}}
-
-.main-logo {{
-    width: 100px;
-    margin-bottom: 16px;
-    filter: drop-shadow(0 0 16px rgba(142, 148, 251, 0.5));
-}}
-
-.main-title {{
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #ffffff;
-    letter-spacing: 1.2px;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}}
-
-/* 🔹 Main content full width */
+/* Block container */
 .block-container {{
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
-    max-width: 100% !important;
-    padding-top: 1rem !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 120px !important;
+    max-width: 980px !important;
 }}
 
-/* 🔹 Adjust main content area when sidebar is hidden */
-.main .block-container {{
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
-}}
-
-/* 🔹 Expander Styling for Alternative Answers */
-.streamlit-expanderHeader {{
-    background: linear-gradient(90deg, #4e54c8, #8f94fb) !important;
-    color: white !important;
-    font-weight: 600 !important;
-    border-radius: 12px !important;
-    padding: 12px 16px !important;
-    border: none !important;
+/* Expander */
+.streamlit-expanderHeader, [data-testid="stExpander"] details > summary {{
+    background: var(--surface) !important;
+    color: var(--text-1) !important;
+    font-weight: 500 !important;
+    border-radius: var(--radius-md) !important;
+    padding: 11px 16px !important;
+    border: 1px solid var(--border) !important;
     margin: 8px 0 !important;
-    transition: all 0.3s ease !important;
+    transition: all 180ms ease !important;
 }}
-
-.streamlit-expanderHeader:hover {{
-    background: linear-gradient(90deg, #8f94fb, #4e54c8) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 12px rgba(78, 84, 200, 0.3) !important;
+.streamlit-expanderHeader:hover, [data-testid="stExpander"] details > summary:hover {{
+    background: var(--surface-strong) !important;
+    border-color: var(--border-strong) !important;
 }}
-
-.streamlit-expanderContent {{
-    background: rgba(36, 40, 59, 0.6) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 12px !important;
+.streamlit-expanderContent, [data-testid="stExpander"] details > div {{
+    background: rgba(13,17,36,0.5) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-md) !important;
     padding: 16px !important;
     margin-top: 8px !important;
-    backdrop-filter: blur(10px) !important;
 }}
 
-/* 🔹 Alternative Answer Styling */
-.alternative-answer {{
-    background: rgba(255, 255, 255, 0.03);
-    border-left: 3px solid #8f94fb;
-    padding: 12px 16px;
-    margin: 8px 0;
+/* Empty state */
+.empty-hero {{
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center;
+    padding: 56px 16px 24px;
+    color: var(--text-2);
+}}
+.empty-hero .badge {{
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 999px;
+    background: rgba(139,147,255,0.10);
+    border: 1px solid rgba(139,147,255,0.30);
+    color: var(--brand); font-size: 0.78rem;
+    margin-bottom: 18px;
+}}
+.empty-hero h1 {{
+    font-size: 2.1rem; font-weight: 700;
+    margin: 0 0 10px;
+    background: linear-gradient(135deg, #fff, #c4a8ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}}
+.empty-hero p {{
+    max-width: 520px; line-height: 1.6; margin: 0 0 28px;
+    color: var(--text-2);
+}}
+.suggest-grid {{
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; width: 100%; max-width: 680px;
+}}
+@media (max-width: 640px) {{ .suggest-grid {{ grid-template-columns: 1fr; }} }}
+.suggest-chip {{
+    text-align: left;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text-1);
+    font-size: 0.92rem; line-height: 1.45;
+    transition: all 180ms ease;
+}}
+.suggest-chip:hover {{
+    border-color: rgba(139,147,255,0.55);
+    background: var(--surface-strong);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 22px rgba(91,99,255,0.18);
+}}
+.suggest-chip .label {{
+    display: block; font-size: 0.72rem; color: var(--brand);
+    letter-spacing: 0.5px; text-transform: uppercase;
+    margin-bottom: 4px; font-weight: 600;
+}}
+
+/* Source card */
+.src-card {{
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin: 6px 0;
+}}
+.src-card .src-num {{
+    flex: 0 0 28px; height: 28px;
     border-radius: 8px;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+    background: linear-gradient(135deg, rgba(91,99,255,0.4), rgba(139,147,255,0.2));
+    color: var(--text-1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; font-weight: 700;
+}}
+.src-card .src-body {{ flex: 1; min-width: 0; }}
+.src-card .src-file {{
+    color: var(--text-1); font-weight: 500; font-size: 0.92rem;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}}
+.src-card .src-page {{
+    color: var(--text-3); font-size: 0.78rem; margin-top: 2px;
 }}
 </style>
 
-<!-- 🔹 Injected Logo + Title -->
-<div class="main-header">
-    <img class="main-logo" src="data:image/png;base64,{logo_base64}" />
-    <div class="main-title">PDPA Assistant</div>
+<div class="topbar">
+    <img class="topbar-logo" src="data:image/png;base64,{logo_base64}" />
+    <div>
+        <div class="topbar-title">PDPA Assistant</div>
+        <div class="topbar-sub">ผู้ช่วยตอบคำถาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล</div>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="status-pill"><span class="status-dot"></span>Typhoon · Local</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -430,12 +507,54 @@ if st.session_state.langgraph_workflow is None or st.session_state.using_uploade
     st.session_state.is_pdpa_related = True
 
 
+if "preset_prompt" not in st.session_state:
+    st.session_state.preset_prompt = None
+
+if not st.session_state.messages:
+    st.markdown("""
+    <div class="empty-hero">
+        <span class="badge">● PDPA · พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล</span>
+        <h1>ถามคำถามเกี่ยวกับ PDPA ได้เลย</h1>
+        <p>ผู้ช่วยอ้างอิงจากตัวบทกฎหมาย พร้อมระบุมาตราและหน้าเอกสารต้นทาง ตอบเป็นภาษาไทย พร้อมเหตุผลและตัวอย่างประกอบ</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    suggestions = [
+        "เจ้าของข้อมูลส่วนบุคคลมีสิทธิอะไรบ้างตาม PDPA?",
+        "ฐานทางกฎหมายในการประมวลผลข้อมูลมีอะไรบ้าง?",
+        "เกิดเหตุข้อมูลรั่วไหล ต้องแจ้งใครและภายในกี่วัน?",
+        "การถ่ายภาพหรือ CCTV ที่ติดบุคคลอื่นต้องขอความยินยอมไหม?",
+    ]
+    sc1, sc2 = st.columns(2, gap="small")
+    for idx, q in enumerate(suggestions):
+        target_col = sc1 if idx % 2 == 0 else sc2
+        with target_col:
+            if st.button(q, key=f"suggest_{idx}", use_container_width=True):
+                st.session_state.preset_prompt = q
+                st.rerun()
+
+    rc1, rc2, rc3 = st.columns([1, 1, 1])
+    with rc2:
+        if st.button("🔄 เริ่มการสนทนาใหม่", key="new_chat_empty", use_container_width=True):
+            reset_chat()
+            st.rerun()
+else:
+    nc1, nc2 = st.columns([6, 1])
+    with nc2:
+        if st.button("🔄 ใหม่", key="new_chat_top", help="เริ่มการสนทนาใหม่", use_container_width=True):
+            reset_chat()
+            st.rerun()
+
+
 for message in st.session_state.messages:
     with st.chat_message(message["role"], avatar="👤" if message["role"] == "user" else None):
         st.markdown(message["content"])
 
 
 prompt = st.chat_input("พิมพ์คำถามเกี่ยวกับ PDPA ของคุณ...")
+if st.session_state.preset_prompt and not prompt:
+    prompt = st.session_state.preset_prompt
+    st.session_state.preset_prompt = None
 
 if prompt:
     print(f"🔍 App: Processing prompt: {prompt}")
@@ -611,28 +730,22 @@ if prompt:
         message_placeholder.markdown(best_answer)
         
         if "search_metadata" in result and result["search_metadata"]:
-            with st.expander("📚 แหล่งที่มาของข้อมูล (คลิกเพื่อดู)", expanded=False):
-                st.markdown("""
-                <div style="background: rgba(78, 84, 200, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
-                    <p style="margin: 0; color: #8f94fb; font-size: 14px;">
-                        💡 ข้อมูลที่ใช้ในการตอบคำถามนี้มาจากเอกสารอ้างอิงดังนี้
-                    </p>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                sources = result["search_metadata"]
-                for i, source in enumerate(sources[:5], 1):
+            with st.expander(f"📚 แหล่งอ้างอิง · {len(result['search_metadata'][:5])} รายการ", expanded=False):
+                cards_html = []
+                for i, source in enumerate(result["search_metadata"][:5], 1):
                     source_file = source.get('source_file', 'ไม่ระบุไฟล์')
-                    page_number = source.get('page_number', 'ไม่ระบุหน้า')
-                    
-                    if source_file != 'ไม่ระบุไฟล์' and page_number != 'ไม่ระบุหน้า':
-                        source_display = f"**[{i}]** {source_file}, หน้า {page_number}"
-                    elif source_file != 'ไม่ระบุไฟล์':
-                        source_display = f"**[{i}]** {source_file}"
-                    else:
-                        source_display = f"**[{i}]** เอกสารอ้างอิง"
-                    
-                    st.markdown(source_display)
+                    page_number = source.get('page_number', None)
+                    page_label = f"หน้า {page_number}" if page_number and page_number != 'ไม่ระบุหน้า' else "ไม่ระบุหน้า"
+                    cards_html.append(
+                        f'<div class="src-card">'
+                        f'  <div class="src-num">{i}</div>'
+                        f'  <div class="src-body">'
+                        f'    <div class="src-file">{source_file}</div>'
+                        f'    <div class="src-page">{page_label}</div>'
+                        f'  </div>'
+                        f'</div>'
+                    )
+                st.markdown("\n".join(cards_html), unsafe_allow_html=True)
         
         
 

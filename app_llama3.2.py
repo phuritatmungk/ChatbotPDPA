@@ -457,6 +457,39 @@ if is_light:
     </style>
     """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+.st-key-theme_switch {
+    position: fixed;
+    top: 3.6rem;
+    right: 1.25rem;
+    z-index: 1000;
+    padding: 6px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    backdrop-filter: blur(12px);
+}
+.st-key-theme_switch [data-testid="stToggle"] { margin: 0 !important; padding: 0 !important; }
+.st-key-theme_switch [data-testid="stToggle"] label { gap: 8px !important; align-items: center !important; }
+.st-key-theme_switch [data-testid="stToggle"] label > div:first-of-type {
+    color: var(--text-2) !important;
+    font-size: 0.78rem !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+new_is_light = st.toggle(
+    "☀️ Light" if not is_light else "🌙 Dark",
+    value=is_light,
+    key="theme_switch",
+)
+if new_is_light != is_light:
+    st.session_state.theme = "light" if new_is_light else "dark"
+    st.rerun()
+
 
 def is_pdpa_related(document_tool):
     """
@@ -696,10 +729,6 @@ with st.sidebar:
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
-    theme_label = "🌙  โหมดมืด" if is_light else "☀️  โหมดสว่าง"
-    if st.button(theme_label, key="theme_toggle", use_container_width=True):
-        st.session_state.theme = "dark" if is_light else "light"
-        st.rerun()
 
     st.markdown('<div class="sidebar-title">ประวัติการสนทนา</div>', unsafe_allow_html=True)
 

@@ -417,8 +417,6 @@ class SecurityFilter:
             "response_message": ""
         }
 
-        if os.getenv("DISABLE_GUARDRAIL", "0").lower() in ("1", "true", "yes", "y"):
-            return result
 
       
         injection_hits = self.detect_prompt_injection(user_input)
@@ -437,7 +435,10 @@ class SecurityFilter:
             result["violations"].extend(safety_violations)
             return result
 
-        
+
+        if os.getenv("DISABLE_PDPA_CHECK", "0").lower() in ("1", "true", "yes", "y"):
+            return result
+
         is_pdpa_related, reason_text = self._ai_check_pdpa_related(user_input)
         if not is_pdpa_related:
             result["should_respond"] = False

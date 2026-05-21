@@ -400,11 +400,9 @@ class SecurityFilter:
     
     def filter_user_input(self, user_input: str) -> Dict[str, any]:
         """
-        [CORRECTED LOGIC]
-        ตรวจสอบ Input จากผู้ใช้ตามลำดับความสำคัญ:
+        ตรวจสอบ Input จากผู้ใช้:
         1. ตรวจจับการโจมตี (Injection) -> บล็อกทันที
         2. ตรวจจับเนื้อหาไม่เหมาะสม (Profanity) -> บล็อกทันที
-        3. ตรวจสอบว่าหัวข้อเกี่ยวกับ PDPA หรือไม่ -> บล็อกถ้าไม่เกี่ยว
         """
 
         result = {
@@ -429,28 +427,10 @@ class SecurityFilter:
         
         is_safe, safety_violations = self.check_content_safety(user_input)
         if not is_safe:
-            # บล็อกคำหยาบทันที ไม่ว่าจะเกี่ยวข้องกับ PDPA หรือไม่
             result["should_respond"] = False
             result["response_message"] = "🔴 [Guardrail] บล็อกคำถามเนื่องจากพบคำหยาบ/ไม่เหมาะสม"
             result["violations"].extend(safety_violations)
             return result
-
-
-        if os.getenv("DISABLE_PDPA_CHECK", "0").lower() in ("1", "true", "yes", "y"):
-            return result
-
-        is_pdpa_related, reason_text = self._ai_check_pdpa_related(user_input)
-        if not is_pdpa_related:
-            result["should_respond"] = False
-        
-            result["response_message"] = (
-                "🔴 หัวข้อนี้ไม่เกี่ยวข้องกับ PDPA (พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล)\n"
-                f"- {reason_text}\n"
-            )
-            if reason_text:
-                result["reasons"].append(reason_text)
-            return result
-
 
         return result
     
